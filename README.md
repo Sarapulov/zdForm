@@ -2,14 +2,25 @@
     
     ver 1.1 | last updated: 2020-05-20
 
-    use case:
+### How to get it
+
+```
+<!-- Get patch fixes within a minor version -->
+<script src="https://cdn.jsdelivr.net/gh/sarapulov/zdForm@1.1.0/zdForm.js"></script>
+
+<!-- Always get the latest version -->
+<!-- Not recommended for production sites! -->
+<script src="https://cdn.jsdelivr.net/gh/sarapulov/zdForm/zdForm.js"></script>
+```
+
+### use case:
 
         1. hide desired ticket fields on selected HC form
         2. preset subject/text/numeric/dropdowns fields with configured values
         3. preset subject/text/numeric/dropdowns fields with a value from one of non-empty fields 
         4. preset fields real time or on submit event
 
-    to run:
+### to run:
 
         1 - deploy JS code in a <script> tag on new_request_page.hbs template
         2 - configure as per instructions below
@@ -96,11 +107,11 @@
 
         3 - test
 
-    dependency:
+### dependency:
 
         - jQuery
 
-    notes:
+### notes:
 
         - script was developed and tested for Zendesk Guide templates v1
         - tests covered dropdowns (incl. nested dropdowns) & ticket form fields, simple form submissions and submission failures
