@@ -1,4 +1,3 @@
-// ver 1.1.1 | last updated: 2020-05-27
 var zdForm = function() {
 	'use strict';
 		var mdl = {};
@@ -6,8 +5,8 @@ var zdForm = function() {
 	   	mdl.init = function(params) { // check params and initiate the script
 	      	if (params) {
 	      		initiate(params);
-	      	} else {
-	         	showError('Script config is missing or broken.');
+	   		} else {
+	         	showError('CONFIGURATION IS MISSING, BROKEN OR MISSFORMATTED. SCRIPT WILL NOT RUN.');
 	         	return;
 	      	}
 	   	};
@@ -40,10 +39,17 @@ var zdForm = function() {
 	   			initiate(params);
 	   		}
 	   	}
+	   	mdl.isNotTicketForm = function() { // verify the ticket form location
+	   		var form = document.getElementById('new_request');
+	   		return !((window.location.href.indexOf('/requests') > -1) && form && form.getElementsByTagName('footer') && (form.getElementsByTagName('footer').length > 0));
+	  	}
+	  	mdl.cleanAllLocalStorage = function() { // remove all script related local storage data
+	   		window.localStorage && window.localStorage.removeItem(getLocaleStorageKey());
+	   	}
 	  	/* ============ PRIVATE METHODS ============ */
 	   	function initiate(params) { // initiate the logic
-	   		if (isNotTicketForm()) {
-	   			cleanAllLocalStorage();
+	   		if (mdl.isNotTicketForm()) {
+	   			mdl.cleanAllLocalStorage();
 	   			return;
 	   		}
 	   		var formSettings = getSettings(params);
@@ -52,11 +58,8 @@ var zdForm = function() {
 			
 	   		if (formSettings && (mdl.hasAnyUserTag(formSettings.user_has_any_tag) || formSettings.user_has_any_tag == undefined)) executeSettings(formSettings);	
 	   	}
-	   	function isNotTicketForm() { // verify the ticket form location
-	   		return !(!!jQuery('.request_ticket_form_id').length || window.location.search.indexOf('ticket_form_id') > -1 /*  || window.location.href.indexOf('/requests') > -1 */ );
-	  	}
 	   	function getTicketFormID() { // return ticket form ID
-	   		return jQuery('#request_issue_type_select').val() || jQuery('#request_ticket_form_id').val();
+	   		return document.getElementById('request_issue_type_select').value || document.getElementById('request_ticket_form_id').value;
 	   	}
 	   	function getSettings(params) { // return settings for a given ticket form
 	   		var settings = params[getTicketFormID()];
@@ -219,7 +222,7 @@ var zdForm = function() {
 
 	   			if (currentValue) {
 	   				if (Object.keys(currentValue).length == 1) {
-	   					cleanAllLocalStorage()
+	   					mdl.cleanAllLocalStorage()
 		   			} else {
 		   				delete currentValue[getLocalStorageAttribute(formSettings)];
 	   					window.localStorage.setItem(getLocaleStorageKey(), JSON.stringify(currentValue));
@@ -227,9 +230,6 @@ var zdForm = function() {
 	   			}
 	   		}
 		}
-	   function cleanAllLocalStorage() { // remove all script related local storage data
-	   		window.localStorage && window.localStorage.removeItem(getLocaleStorageKey());
-	   }
 	   function showError(msg) { // log messages to the console
 	      if (msg) console.warn('[' + new Date.now().toLocaleDateString() + '] TICKET FORM FIELDS PRESET SCRIPT ERROR: ' + msg);
 	   }
