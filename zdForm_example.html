@@ -4,20 +4,20 @@
 
 # zdForm
     
-ver 1.1.2 | last updated: 2020-06-12
+ver 1.2.0 | last updated: 2020-06-15
 
 ### How to get it
 
-***
+```
 <!-- Get patch fixes within a minor version -->
-https://cdn.jsdelivr.net/gh/sarapulov/zdForm@1.1.2/zdForm.js
+https://cdn.jsdelivr.net/gh/sarapulov/zdForm@1.2.0/zdForm.js
 
 <!-- Always get the latest version -->
 <!-- Not recommended for production sites! -->
 https://cdn.jsdelivr.net/gh/sarapulov/zdForm/zdForm.js
-***
+```
 
-It is important to load this script in the <head> or on all following pages:
+It is important to load this script in the HEAD or on all following pages:
 
 - home_page
 - new_request_page
@@ -29,15 +29,16 @@ It is important to load this script in the <head> or on all following pages:
 2. preset subject/text/numeric/dropdowns fields with configured values
 3. preset subject/text/numeric/dropdowns fields with a value from one of non-empty fields 
 4. preset fields real time or on submit event
+5. show desired fields only when they have a value
 
 ### to run:
 
-1. deploy JS code in a <script> tag on new_request_page.hbs template
+1. deploy JS code in a SCRIPT tag on new_request_page.hbs template
 2. configure as per instructions below
 
 2.1
 
-***
+```
 jQuery(document).ready(function () {
     
     // OPTIONAL hasAnyUserTag method accepts array of tags and return true if at least one of them is presented on Help Center user
@@ -52,7 +53,7 @@ jQuery(document).ready(function () {
             "field_id_to_set":"request_subject", 
             
             // MANDATORY - TEMPLATE for setting the field
-            "field_value_to_set":"{[{request_custom_fields_23506078}]} - {[{request_issue_type_select}]} - {[{one_of_the_field_ids_to_get}]} - {[{user_input}]}",
+            "field_value_to_set":"{[{request_custom_fields_23506078|FIELD_LABEL:}]} - {[{request_issue_type_select}]} - {[{one_of_the_field_ids_to_get}]} - {[{user_input}]}",
             
             // OPTIONAL - list of FIELD IDs that will be used to replace {[{one_of_the_field_ids_to_get}]} placeholder. Firts non-empty field will win
             "one_of_the_field_ids_to_get":["request_custom_fields_23496063","request_custom_fields_23530886","request_custom_fields_23502577"],
@@ -77,26 +78,46 @@ jQuery(document).ready(function () {
         });
     }
 });
-***
+```
 
 2.2
 
 "field_value_to_set" template supports the following entires:
 
-***
+```
 {[{request_issue_type_select}]} - will return currently selected ticket form name
 {[{request_custom_fields_23506078}]} - will return a label (for dropdowns) and a value (for text & numeric) custom fields
 {[{one_of_the_field_ids_to_get}]} - will return the first non empty field label/value from a list of field specified in "one_of_the_field_ids_to_get"
 {[{user_input}]} - ONLY WORKS WHEN "set_on_submit": true Will return the manual user input for a given field on submit event.
                     If submit failed the desired field will be emptied. If "set_on_submit": false this placeholder will return empty string
-***
+```
+
+"field_value_to_set" template supports placeholders with additional attributes:
+
+```
+{[{request_custom_fields_23506078|MY FIELD LABEL:}]}
+{[{request_custom_fields_23506078|FIELD_LABEL:}]}
+```
+
+If additional attributes is passed after the pipe character it will be used a text before the value (label).
+Both label and the value will only be shown when field has non empty value.
+
+Example 1:
+    Field with id = `request_custom_fields_23506078` is labeled as "REQUEST TYPE" has a value of "REFUND".
+    `{[{request_custom_fields_23506078|MY FIELD LABEL:}]}` will resolve into `MY FIELD LABEL: REFUND`
+    `{[{request_custom_fields_23506078|FIELD_LABEL:}]}` will resolve into `REQUEST TYPE: REFUND` (keyword "FIELD_LABEL" will get the current field label automatically)
+
+Example 2:
+    Field with id = `request_custom_fields_23506078` is labeled as "REQUEST TYPE" has a value of "" (field is empty)
+    `{[{request_custom_fields_23506078|MY FIELD LABEL:}]}` will resolve into "" (empty string)
+    `{[{request_custom_fields_23506078|FIELD_LABEL:}]}` will resolve into "" (empty string)
 
 2.3
 
 In some cases the ticket submission form can be controlled by another scripts. For example, if another script forces some of the fields to be required and
 validate the fields at submit event you may need to execute a call back to inform THIS script about submission failure. Here is example how this may work.
 
-***
+```
 var request_subject_config = {
         "12405": {
             "field_id_to_set":"request_subject",
@@ -110,13 +131,13 @@ var request_subject_config = {
     };
 
 zdForm().init(request_subject_config);
-***
+```
 
 The other script need to call the following callback when submission has failed AT SUBMIT EVENT. So THIS script will revert back the values.
 
-***
+```
 zdForm().handleSubmissionError(request_subject_config)
-***
+```
 
 NOTE:
     - this only valid when "set_on_submit": true Otherwise, this behaviour will be ignored
@@ -126,13 +147,14 @@ NOTE:
 
 The following public methods are supported:
 
-***
+```
 zdForm().init({ SCRIPT CONFIG OBJECT }) - runs the script
 zdForm().hasAnyUserTag(['test,'/office:/']) - TRUE if current user has at least one of the tags OR at least one tag is matching the pattern
 zdForm().handleSubmissionError({ SCRIPT CONFIG OBJECT }) - should be called by another script which controls the form submission at the error event
 zdForm().isNotTicketForm() - TRUE is current page is not the ticket form
 zdForm().cleanAllLocalStorage() - will remove script specific record from the local storage
-***
+
+```
 
 3 - test
 
@@ -145,9 +167,9 @@ In case when Help Center is using single ticket form it may require to run the s
 
 It is enough to run a script with empty object as a paremeter:
 
-***
+```
 document.addEventListener('DOMContentLoaded', function() { zdForm && zdForm().init({}); })
-***
+```
 
 ### dependency:
 
@@ -240,8 +262,28 @@ var zdForm = function() {
 	   		if ((formSettings.user_input !== undefined) && formSettings.is_form_submitted) fieldValue = formSettings.user_input;
 	   		setField(formSettings, fieldValue);
 	   }
-	   function extendFormSetting(formSettings){ // extract field IDs from the settings
-	   		var fields_to_process = formSettings.field_value_to_set.match(/{\[{([^}\]}]+)}\]}/g).map(function(res) { return res.replace(/{\[{|}\]}/g , ''); });
+	   function extendFormSetting(formSettings){ // extract field IDs from the settings and process placeholders with logic
+	   		formSettings.ignore_placeholders = ['one_of_the_field_ids_to_get','request_issue_type_select','user_input'];
+
+	   		var fields_to_process_objects = formSettings.field_value_to_set.match(/{\[{([^}\]}]+)}\]}/g).map(function(res) {
+	   			
+	   			var placeholder = res.replace(/{\[{|}\]}/g , '');
+	   			var placeholderArray = placeholder.split('|');
+	   			var field_id = placeholderArray[0].trim();
+	   			var field_text = (placeholderArray.length > 1) ? (placeholderArray[1].trim() + ' ') : '';
+
+	   			return {
+	   				placeholder: placeholder,
+	   				field_id: field_id,
+	   				field_text: ( field_text.indexOf('FIELD_LABEL') > -1 ) ? field_text.replace('FIELD_LABEL', jQuery('label[for="' + field_id + '"]').text()) : field_text,
+	   				has_text: !!( (placeholderArray.length > 1) && (placeholderArray[1].trim().length > 1) )
+	   			};
+	   		});
+
+	   		formSettings.fields_to_process_objects = fields_to_process_objects;
+
+	   		var fields_to_process = fields_to_process_objects.map(function(field) { return field.field_id; });
+	   		
 	   		formSettings.fields_to_process = fields_to_process;
 	   		formSettings.field_ids_to_listen = fields_to_process.concat(formSettings.one_of_the_field_ids_to_get);
 
@@ -280,9 +322,10 @@ var zdForm = function() {
 		   			result[field_reference] = formSettings.set_on_submit ? getFieldValue(formSettings.field_id_to_set) : '';
 		   			formSettings.user_input = result[field_reference];
 	   			} else {
-	   				result[field_reference] = getFieldValue(field_reference);
+	   				result[field_reference] = getFieldValue(field_reference, formSettings);
 	   			}
 	   		}
+	   		
 	   		if (hasOneOfTheFields) result.one_of_the_field_ids_to_get = getOneOfTheFields(formSettings) || '';
 	   		
 	   		return result;
@@ -290,7 +333,7 @@ var zdForm = function() {
 	   function getOneOfTheFields(formSettings) { // return first non empty field value from a given list
 	   		var val, field_ids = formSettings.one_of_the_field_ids_to_get;
 			for (var i = 0; i < field_ids.length; i++) {
-				var field_val = getFieldValue(field_ids[i]);
+				var field_val = getFieldValue(field_ids[i], formSettings);
 				if (((field_val !== '-') && (field_val !== ''))) {
 					val = field_val;
 					break;
@@ -298,7 +341,7 @@ var zdForm = function() {
 			}
 	   		return val;
 	   }
-	   function getFieldValue(field_id) { // return human friendly field value
+	   function getFieldValue(field_id, formSettings) { // return human friendly field value
 	   		var $field = jQuery('#'+field_id);
 	   		var val = $field.val();
 
@@ -309,7 +352,25 @@ var zdForm = function() {
 	   		if (field_id == 'request_issue_type_select') { // handle ticket form selector
 	   			val = $field.find('option[selected="selected"]').text();
 	   		}
+	   		if (formSettings.ignore_placeholders.indexOf(field_id) < 0) { // calculates the value for placeholders with the custom text
+	   			var fieldObject = getFieldObject(field_id, formSettings);
+	   			if (fieldObject && fieldObject.has_text) {
+	   				val = isEmpty(val) ? val : fieldObject.field_text + val;
+	   			}
+	   		}
 	   		return val;
+	   }
+	   function getFieldObject(field_id, formSettings) { // return a single object for a given field
+	   		var fieldObject, fieldObjects = formSettings.fields_to_process_objects;
+	   		if (field_id && fieldObjects) {
+	   			for (var i = 0; i < fieldObjects.length; i++) {
+	   				if (field_id == fieldObjects[i].field_id) {
+	   					return fieldObjects[i];
+	   					break;
+	   				}
+	   			}
+	   		}
+	   		return fieldObject;
 	   }
 	   function flattenArray(fieldValues) { // flatten dropdown with nested levels
 	   		var results = {};
@@ -332,9 +393,19 @@ var zdForm = function() {
 	   function processValues(formSettings, results) { // inject values into template
 	   		formSettings.processed_field_value_to_set = formSettings.field_value_to_set;
 	   		for (var key in results) {
-	        	formSettings.processed_field_value_to_set = formSettings.processed_field_value_to_set.replace('{[{' + key + '}]}', results[key]);
+	        	var fieldObject = getFieldObject(key, formSettings);
+        		if (fieldObject && fieldObject.has_text) {
+        			var fieldValue = isEmpty(results[key]) ? '' : results[key];
+        			formSettings.processed_field_value_to_set = formSettings.processed_field_value_to_set.replace('{[{' + fieldObject.placeholder + '}]}', fieldValue);
+        		} else {
+        			formSettings.processed_field_value_to_set = formSettings.processed_field_value_to_set.replace('{[{' + key + '}]}', results[key]);	
+        		}
 	      	}
 	   }
+	   function isEmpty(v){
+	   		return ( v == undefined || v == null || v == '' || v == '-' );
+	   }
+
 	   function setField(formSettings, optionalValue) { // set field
 	   		jQuery('#'+formSettings.field_id_to_set).val((optionalValue !== undefined) ? optionalValue : formSettings.processed_field_value_to_set);
 	   }
@@ -399,7 +470,6 @@ var zdForm = function() {
 	return mdl;
 };
 
-
 </script>
 
 <script>
@@ -407,24 +477,24 @@ var zdForm = function() {
 	var request_subject_config = {
 				"12405": {
 					"field_id_to_set":"request_subject",
-					// "field_value_to_set":"{[{request_custom_fields_23506078}]} :: {[{request_issue_type_select}]} :: {[{one_of_the_field_ids_to_get}]}",
-					"field_value_to_set":"{[{user_input}]} --- {[{request_custom_fields_23506078}]} :: {[{request_issue_type_select}]} :: {[{one_of_the_field_ids_to_get}]}",
+					"field_value_to_set":"{[{request_custom_fields_23506078|FIELD_LABEL:}]} :: {[{request_issue_type_select|FIELD_LABEL:}]} :: {[{one_of_the_field_ids_to_get|FIELD_LABEL:}]}",
+					// "field_value_to_set":"{[{user_input}]} --- {[{request_custom_fields_23506078}]} :: {[{request_issue_type_select}]} :: {[{one_of_the_field_ids_to_get}]}",
 					"one_of_the_field_ids_to_get":["request_custom_fields_23496063","request_custom_fields_23530886","request_custom_fields_23502577"],
 					"default_field_value": "",
 					// "field_ids_to_hide":["request_subject"],
-					"set_on_submit": true,
+					"set_on_submit": false,
 					"user_has_any_tag":['test','/ams::/']
 				}
 			};
 	var request_description_config = {
 				"12405": {
 					"field_id_to_set":"request_description",
-					// "field_value_to_set":"{[{request_custom_fields_23506078}]} :: {[{request_issue_type_select}]} :: {[{one_of_the_field_ids_to_get}]}",
-					"field_value_to_set":"{[{user_input}]} --- {[{request_custom_fields_23506078}]} :: {[{request_issue_type_select}]} :: {[{one_of_the_field_ids_to_get}]}",
+					"field_value_to_set":"-----------\n\n{[{request_issue_type_select}]}\n{[{one_of_the_field_ids_to_get}]}\n{[{request_custom_fields_23506078|FIELD_LABEL:}]}\n{[{request_custom_fields_24156879|FIELD_LABEL:}]}\n",
+					// "field_value_to_set":"{[{user_input}]} --- {[{request_custom_fields_23506078}]} :: {[{request_issue_type_select}]} :: {[{one_of_the_field_ids_to_get}]}",
 					"one_of_the_field_ids_to_get":["request_custom_fields_23496063","request_custom_fields_23530886","request_custom_fields_23502577"],
 					"default_field_value": "",
 					// "field_ids_to_hide":["request_subject"],
-					"set_on_submit": true,
+					"set_on_submit": false,
 					// "user_has_any_tag":['test','/ams::/']
 				}
 			};

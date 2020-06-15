@@ -1,6 +1,6 @@
 # zdForm
     
-ver 1.1.2 | last updated: 2020-06-12
+ver 1.2.0 | last updated: 2020-06-15
 
 ### How to get it
 
@@ -13,7 +13,7 @@ ver 1.1.2 | last updated: 2020-06-12
 <script src="https://cdn.jsdelivr.net/gh/sarapulov/zdForm/zdForm.js"></script>
 ```
 
-It is important to load this script in the <head> or on all following pages:
+It is important to load this script in the HEAD or on all following pages:
 
 - home_page
 - new_request_page
@@ -25,10 +25,11 @@ It is important to load this script in the <head> or on all following pages:
 2. preset subject/text/numeric/dropdowns fields with configured values
 3. preset subject/text/numeric/dropdowns fields with a value from one of non-empty fields 
 4. preset fields real time or on submit event
+5. show desired fields only when they have a value
 
 ### to run:
 
-1. deploy JS code in a <script> tag on new_request_page.hbs template
+1. deploy JS code in a SCRIPT tag on new_request_page.hbs template
 2. configure as per instructions below
 
 2.1
@@ -48,7 +49,7 @@ jQuery(document).ready(function () {
             "field_id_to_set":"request_subject", 
             
             // MANDATORY - TEMPLATE for setting the field
-            "field_value_to_set":"{[{request_custom_fields_23506078}]} - {[{request_issue_type_select}]} - {[{one_of_the_field_ids_to_get}]} - {[{user_input}]}",
+            "field_value_to_set":"{[{request_custom_fields_23506078|FIELD_LABEL:}]} - {[{request_issue_type_select}]} - {[{one_of_the_field_ids_to_get}]} - {[{user_input}]}",
             
             // OPTIONAL - list of FIELD IDs that will be used to replace {[{one_of_the_field_ids_to_get}]} placeholder. Firts non-empty field will win
             "one_of_the_field_ids_to_get":["request_custom_fields_23496063","request_custom_fields_23530886","request_custom_fields_23502577"],
@@ -86,6 +87,26 @@ jQuery(document).ready(function () {
 {[{user_input}]} - ONLY WORKS WHEN "set_on_submit": true Will return the manual user input for a given field on submit event.
                     If submit failed the desired field will be emptied. If "set_on_submit": false this placeholder will return empty string
 ```
+
+"field_value_to_set" template supports placeholders with additional attributes:
+
+```
+{[{request_custom_fields_23506078|MY FIELD LABEL:}]}
+{[{request_custom_fields_23506078|FIELD_LABEL:}]}
+```
+
+If additional attributes is passed after the pipe character it will be used a text before the value (label).
+Both label and the value will only be shown when field has non empty value.
+
+Example 1:
+    Field with id = `request_custom_fields_23506078` is labeled as "REQUEST TYPE" has a value of "REFUND".
+    `{[{request_custom_fields_23506078|MY FIELD LABEL:}]}` will resolve into `MY FIELD LABEL: REFUND`
+    `{[{request_custom_fields_23506078|FIELD_LABEL:}]}` will resolve into `REQUEST TYPE: REFUND` (keyword "FIELD_LABEL" will get the current field label automatically)
+
+Example 2:
+    Field with id = `request_custom_fields_23506078` is labeled as "REQUEST TYPE" has a value of "" (field is empty)
+    `{[{request_custom_fields_23506078|MY FIELD LABEL:}]}` will resolve into "" (empty string)
+    `{[{request_custom_fields_23506078|FIELD_LABEL:}]}` will resolve into "" (empty string)
 
 2.3
 

@@ -78,8 +78,28 @@ var zdForm = function() {
 	   		if ((formSettings.user_input !== undefined) && formSettings.is_form_submitted) fieldValue = formSettings.user_input;
 	   		setField(formSettings, fieldValue);
 	   }
-	   function extendFormSetting(formSettings){ // extract field IDs from the settings
-	   		var fields_to_process = formSettings.field_value_to_set.match(/{\[{([^}\]}]+)}\]}/g).map(function(res) { return res.replace(/{\[{|}\]}/g , ''); });
+	   function extendFormSetting(formSettings){ // extract field IDs from the settings and process placeholders with logic
+	   		formSettings.ignore_placeholders = ['one_of_the_field_ids_to_get','request_issue_type_select','user_input'];
+
+	   		var fields_to_process_objects = formSettings.field_value_to_set.match(/{\[{([^}\]}]+)}\]}/g).map(function(res) {
+	   			
+	   			var placeholder = res.replace(/{\[{|}\]}/g , '');
+	   			var placeholderArray = placeholder.split('|');
+	   			var field_id = placeholderArray[0].trim();
+	   			var field_text = (placeholderArray.length > 1) ? (placeholderArray[1].trim() + ' ') : '';
+
+	   			return {
+	   				placeholder: placeholder,
+	   				field_id: field_id,
+	   				field_text: ( field_text.indexOf('FIELD_LABEL') > -1 ) ? field_text.replace('FIELD_LABEL', jQuery('label[for="' + field_id + '"]').text()) : field_text,
+	   				has_text: !!( (placeholderArray.length > 1) && (placeholderArray[1].trim().length > 1) )
+	   			};
+	   		});
+
+	   		formSettings.fields_to_process_objects = fields_to_process_objects;
+
+	   		var fields_to_process = fields_to_process_objects.map(function(field) { return field.field_id; });
+	   		
 	   		formSettings.fields_to_process = fields_to_process;
 	   		formSettings.field_ids_to_listen = fields_to_process.concat(formSettings.one_of_the_field_ids_to_get);
 
@@ -118,9 +138,10 @@ var zdForm = function() {
 		   			result[field_reference] = formSettings.set_on_submit ? getFieldValue(formSettings.field_id_to_set) : '';
 		   			formSettings.user_input = result[field_reference];
 	   			} else {
-	   				result[field_reference] = getFieldValue(field_reference);
+	   				result[field_reference] = getFieldValue(field_reference, formSettings);
 	   			}
 	   		}
+	   		
 	   		if (hasOneOfTheFields) result.one_of_the_field_ids_to_get = getOneOfTheFields(formSettings) || '';
 	   		
 	   		return result;
@@ -128,7 +149,7 @@ var zdForm = function() {
 	   function getOneOfTheFields(formSettings) { // return first non empty field value from a given list
 	   		var val, field_ids = formSettings.one_of_the_field_ids_to_get;
 			for (var i = 0; i < field_ids.length; i++) {
-				var field_val = getFieldValue(field_ids[i]);
+				var field_val = getFieldValue(field_ids[i], formSettings);
 				if (((field_val !== '-') && (field_val !== ''))) {
 					val = field_val;
 					break;
@@ -136,7 +157,7 @@ var zdForm = function() {
 			}
 	   		return val;
 	   }
-	   function getFieldValue(field_id) { // return human friendly field value
+	   function getFieldValue(field_id, formSettings) { // return human friendly field value
 	   		var $field = jQuery('#'+field_id);
 	   		var val = $field.val();
 
@@ -147,7 +168,25 @@ var zdForm = function() {
 	   		if (field_id == 'request_issue_type_select') { // handle ticket form selector
 	   			val = $field.find('option[selected="selected"]').text();
 	   		}
+	   		if (formSettings.ignore_placeholders.indexOf(field_id) < 0) { // calculates the value for placeholders with the custom text
+	   			var fieldObject = getFieldObject(field_id, formSettings);
+	   			if (fieldObject && fieldObject.has_text) {
+	   				val = isEmpty(val) ? val : fieldObject.field_text + val;
+	   			}
+	   		}
 	   		return val;
+	   }
+	   function getFieldObject(field_id, formSettings) { // return a single object for a given field
+	   		var fieldObject, fieldObjects = formSettings.fields_to_process_objects;
+	   		if (field_id && fieldObjects) {
+	   			for (var i = 0; i < fieldObjects.length; i++) {
+	   				if (field_id == fieldObjects[i].field_id) {
+	   					return fieldObjects[i];
+	   					break;
+	   				}
+	   			}
+	   		}
+	   		return fieldObject;
 	   }
 	   function flattenArray(fieldValues) { // flatten dropdown with nested levels
 	   		var results = {};
@@ -170,9 +209,19 @@ var zdForm = function() {
 	   function processValues(formSettings, results) { // inject values into template
 	   		formSettings.processed_field_value_to_set = formSettings.field_value_to_set;
 	   		for (var key in results) {
-	        	formSettings.processed_field_value_to_set = formSettings.processed_field_value_to_set.replace('{[{' + key + '}]}', results[key]);
+	        	var fieldObject = getFieldObject(key, formSettings);
+        		if (fieldObject && fieldObject.has_text) {
+        			var fieldValue = isEmpty(results[key]) ? '' : results[key];
+        			formSettings.processed_field_value_to_set = formSettings.processed_field_value_to_set.replace('{[{' + fieldObject.placeholder + '}]}', fieldValue);
+        		} else {
+        			formSettings.processed_field_value_to_set = formSettings.processed_field_value_to_set.replace('{[{' + key + '}]}', results[key]);	
+        		}
 	      	}
 	   }
+	   function isEmpty(v){
+	   		return ( v == undefined || v == null || v == '' || v == '-' );
+	   }
+
 	   function setField(formSettings, optionalValue) { // set field
 	   		jQuery('#'+formSettings.field_id_to_set).val((optionalValue !== undefined) ? optionalValue : formSettings.processed_field_value_to_set);
 	   }
