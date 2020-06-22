@@ -1,6 +1,6 @@
 # zdForm
     
-ver 1.2.0 | last updated: 2020-06-15
+ver 1.2.1 | last updated: 2020-06-22
 
 ### How to get it
 
@@ -93,6 +93,10 @@ jQuery(document).ready(function () {
 ```
 {[{request_custom_fields_23506078|MY FIELD LABEL:}]}
 {[{request_custom_fields_23506078|FIELD_LABEL:}]}
+
+It is also possible to inject spaces and linebreaks:
+
+{[{request_custom_fields_23506078| \nFIELD_LABEL: }]}
 ```
 
 If additional attributes is passed after the pipe character it will be used a text before the value (label).

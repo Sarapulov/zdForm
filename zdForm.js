@@ -86,7 +86,8 @@ var zdForm = function() {
 	   			var placeholder = res.replace(/{\[{|}\]}/g , '');
 	   			var placeholderArray = placeholder.split('|');
 	   			var field_id = placeholderArray[0].trim();
-	   			var field_text = (placeholderArray.length > 1) ? (placeholderArray[1].trim() + ' ') : '';
+	   			// field_text output is not trimmed on purpose. So line breaks can be used in the script config
+	   			var field_text = (placeholderArray.length > 1) ? (placeholderArray[1] + ' ') : '';
 
 	   			return {
 	   				placeholder: placeholder,
