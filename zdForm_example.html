@@ -4,7 +4,7 @@
 
 # zdForm
     
-ver 1.2.1 | last updated: 2020-06-22
+ver 1.2.2 | last updated: 2020-07-06
 
 ### How to get it
 
@@ -262,7 +262,7 @@ var zdForm = function() {
 	   		if (formSettings.set_on_submit) listenSubmitEvent(formSettings); else addEventListener(formSettings);	   		
 	   	}
 	   function setDefaultValue(formSettings){ // set default field value to Ticket Form name unless static value is provided
-	   		var fieldValue = (formSettings.default_field_value !== undefined) ? formSettings.default_field_value : getFieldValue('request_issue_type_select');
+	   		var fieldValue = (formSettings.default_field_value !== undefined) ? formSettings.default_field_value : getFieldValue('request_issue_type_select',formSettings);
 	   		if ((formSettings.user_input !== undefined) && formSettings.is_form_submitted) fieldValue = formSettings.user_input;
 	   		setField(formSettings, fieldValue);
 	   }
@@ -324,7 +324,7 @@ var zdForm = function() {
 	   			if (field_reference == 'one_of_the_field_ids_to_get') {
 	   				hasOneOfTheFields = true;
 	   			} else if ((field_reference == 'user_input') ) {
-		   			result[field_reference] = formSettings.set_on_submit ? getFieldValue(formSettings.field_id_to_set) : '';
+		   			result[field_reference] = formSettings.set_on_submit ? getFieldValue(formSettings.field_id_to_set, formSettings) : '';
 		   			formSettings.user_input = result[field_reference];
 	   			} else {
 	   				result[field_reference] = getFieldValue(field_reference, formSettings);
@@ -479,10 +479,12 @@ var zdForm = function() {
 
 <script>
 
+	// 23194496
+
 	var request_subject_config = {
 				"12405": {
 					"field_id_to_set":"request_subject",
-					"field_value_to_set":"{[{request_custom_fields_23506078|FIELD_LABEL:}]} :: {[{request_issue_type_select|FIELD_LABEL:}]} :: {[{one_of_the_field_ids_to_get|FIELD_LABEL:}]}",
+					"field_value_to_set":"HISTORY: {[{request_custom_fields_23194496|FIELD_LABEL:}]}",
 					// "field_value_to_set":"{[{user_input}]} --- {[{request_custom_fields_23506078}]} :: {[{request_issue_type_select}]} :: {[{one_of_the_field_ids_to_get}]}",
 					"one_of_the_field_ids_to_get":["request_custom_fields_23496063","request_custom_fields_23530886","request_custom_fields_23502577"],
 					"default_field_value": "",
@@ -494,7 +496,7 @@ var zdForm = function() {
 	var request_description_config = {
 				"12405": {
 					"field_id_to_set":"request_description", 
-					"field_value_to_set":"-----------\nHere is the list of fields: \n\n{[{request_issue_type_select}]}\n{[{one_of_the_field_ids_to_get}]}{[{request_custom_fields_24156879|   \nFIELD_LABEL:  }]}{[{request_custom_fields_23506078| \nFIELD_LABEL: }]}",
+					"field_value_to_set":"-----------\nHere is the list of fields: \n\n{[{request_issue_type_select}]}\n{[{one_of_the_field_ids_to_get}]}{[{request_custom_fields_24156879|   \nFIELD_LABEL:  }]}{[{request_custom_fields_23506078| \nFIELD_LABEL: }]}\n HISTORY: {[{request_custom_fields_23194496| \nFIELD_LABEL: }]}",
 					// "field_value_to_set":"{[{user_input}]} --- {[{request_custom_fields_23506078}]} :: {[{request_issue_type_select}]} :: {[{one_of_the_field_ids_to_get}]}",
 					"one_of_the_field_ids_to_get":["request_custom_fields_23496063","request_custom_fields_23530886","request_custom_fields_23502577"],
 					"default_field_value": "",

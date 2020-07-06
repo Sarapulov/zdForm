@@ -1,3 +1,4 @@
+// ver 1.2.2 | last updated: 2020-07-06
 var zdForm = function() {
 	'use strict';
 		var mdl = {};
