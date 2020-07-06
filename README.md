@@ -1,6 +1,6 @@
 # zdForm
     
-ver 1.2.1 | last updated: 2020-06-22
+ver 1.2.2 | last updated: 2020-07-06
 
 ### How to get it
 
@@ -162,7 +162,7 @@ zdForm().cleanAllLocalStorage() - will remove script specific record from the lo
 
 In case when Help Center is using single ticket form it may require to run the script in either of the following places:
 
-1. `new_request_page.hbs` and `home_page.hbs`
+1. `request_page.hbs` and `home_page.hbs`
 2. any global page where JavaScript can be executed: `head`, `footer`, `script.js`
 
 It is enough to run a script with empty object as a paremeter:
