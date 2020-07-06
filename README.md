@@ -1,6 +1,6 @@
 # zdForm
     
-ver 1.2.2 | last updated: 2020-07-06
+ver 1.2.3 | last updated: 2020-07-06
 
 ### How to get it
 

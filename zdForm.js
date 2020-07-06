@@ -1,4 +1,4 @@
-// ver 1.2.2 | last updated: 2020-07-06
+// ver 1.2.3 | last updated: 2020-07-06
 var zdForm = function() {
 	'use strict';
 		var mdl = {};
@@ -75,7 +75,7 @@ var zdForm = function() {
 	   		if (formSettings.set_on_submit) listenSubmitEvent(formSettings); else addEventListener(formSettings);	   		
 	   	}
 	   function setDefaultValue(formSettings){ // set default field value to Ticket Form name unless static value is provided
-	   		var fieldValue = (formSettings.default_field_value !== undefined) ? formSettings.default_field_value : getFieldValue('request_issue_type_select');
+	   		var fieldValue = (formSettings.default_field_value !== undefined) ? formSettings.default_field_value : getFieldValue('request_issue_type_select',formSettings);
 	   		if ((formSettings.user_input !== undefined) && formSettings.is_form_submitted) fieldValue = formSettings.user_input;
 	   		setField(formSettings, fieldValue);
 	   }
@@ -137,7 +137,7 @@ var zdForm = function() {
 	   			if (field_reference == 'one_of_the_field_ids_to_get') {
 	   				hasOneOfTheFields = true;
 	   			} else if ((field_reference == 'user_input') ) {
-		   			result[field_reference] = formSettings.set_on_submit ? getFieldValue(formSettings.field_id_to_set) : '';
+		   			result[field_reference] = formSettings.set_on_submit ? getFieldValue(formSettings.field_id_to_set, formSettings) : '';
 		   			formSettings.user_input = result[field_reference];
 	   			} else {
 	   				result[field_reference] = getFieldValue(field_reference, formSettings);
