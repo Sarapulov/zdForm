@@ -4,7 +4,7 @@
 
 # zdForm
     
-ver 1.2.3 | last updated: 2020-07-06
+ver 1.2.4 | last updated: 2020-07-27
 
 ### How to get it
 
@@ -269,7 +269,7 @@ var zdForm = function() {
 	   function extendFormSetting(formSettings){ // extract field IDs from the settings and process placeholders with logic
 	   		formSettings.ignore_placeholders = ['one_of_the_field_ids_to_get','request_issue_type_select','user_input'];
 
-	   		var fields_to_process_objects = formSettings.field_value_to_set.match(/{\[{([^}\]}]+)}\]}/g).map(function(res) {
+	   		var fields_to_process_objects = (formSettings.field_value_to_set.match(/{\[{([^}\]}]+)}\]}/g) || []).map(function(res) {
 	   			
 	   			var placeholder = res.replace(/{\[{|}\]}/g , '');
 	   			var placeholderArray = placeholder.split('|');
