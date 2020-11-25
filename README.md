@@ -1,16 +1,16 @@
 # zdForm
     
-ver 1.2.4| last updated: 2020-07-27
+ver 1.2.5 | last updated: 2020-11-25
 
 ### How to get it
 
 ```
 <!-- Get patch fixes within a minor version -->
-<script src="https://cdn.jsdelivr.net/gh/sarapulov/zdForm@1.1.2/zdForm.js"></script>
+https://cdn.jsdelivr.net/gh/sarapulov/zdForm@1.2.0/zdForm.js
 
 <!-- Always get the latest version -->
 <!-- Not recommended for production sites! -->
-<script src="https://cdn.jsdelivr.net/gh/sarapulov/zdForm/zdForm.js"></script>
+https://cdn.jsdelivr.net/gh/sarapulov/zdForm/zdForm.js
 ```
 
 It is important to load this script in the HEAD or on all following pages:
@@ -156,13 +156,44 @@ zdForm().cleanAllLocalStorage() - will remove script specific record from the lo
 
 ```
 
+If Help Text text editor is using the rich editor it will be possible to use the HTML in the script setting. The following HTML is supported.
+Custom stly attribute is supported too!
+
+```
+<p style='color:red;'>Normal text</p>
+<pre>Code</pre>
+<h2>Header 2</h2>
+<h3>Header 3</h3>
+<h4>Header 4</h4>
+<p><strong>bold</strong></p>
+<p><em>italic</em></p>
+<ul>
+<li>ordered item 1</li>
+<li>ordered item 2</li>
+</ul>
+<ol>
+<li>numbered item 1</li>
+<li>numbered item 2</li>
+</ol>
+<a href="https://zendesk.com" target="_blank" rel="noopener">link</a>
+```
+
+Example:
+
+```
+...
+"field_value_to_set":"-----------<br>Here is the list of fields: <br><br>{[{request_issue_type_select}]}<br>{[{one_of_the_field_ids_to_get}]}{[{request_custom_fields_24156879|   <br><strong style='color:red;'>#FIELD_LABEL =></strong>  }]}{[{request_custom_fields_23506078| <br><strong style='color:red;'>FIELD_LABEL:</strong>    }]}<br> <i>HISTORY:</i> {[{request_custom_fields_23194496| <br>FIELD LABEL IN ALL UPPERCASE: }]}",
+...
+```
+
+
 3 - test
 
 ### notes:
 
 In case when Help Center is using single ticket form it may require to run the script in either of the following places:
 
-1. `request_page.hbs` and `home_page.hbs`
+1. `new_request_page.hbs` and `home_page.hbs`
 2. any global page where JavaScript can be executed: `head`, `footer`, `script.js`
 
 It is enough to run a script with empty object as a paremeter:

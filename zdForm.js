@@ -2,7 +2,7 @@
 
 # zdForm
     
-ver 1.2.4 | last updated: 2020-07-27
+ver 1.2.5 | last updated: 2020-11-25
 
 ### How to get it
 
@@ -158,6 +158,37 @@ zdForm().cleanAllLocalStorage() - will remove script specific record from the lo
 
 ```
 
+If Help Text text editor is using the rich editor it will be possible to use the HTML in the script setting. The following HTML is supported.
+Custom stly attribute is supported too!
+
+```
+<p style='color:red;'>Normal text</p>
+<pre>Code</pre>
+<h2>Header 2</h2>
+<h3>Header 3</h3>
+<h4>Header 4</h4>
+<p><strong>bold</strong></p>
+<p><em>italic</em></p>
+<ul>
+<li>ordered item 1</li>
+<li>ordered item 2</li>
+</ul>
+<ol>
+<li>numbered item 1</li>
+<li>numbered item 2</li>
+</ol>
+<a href="https://zendesk.com" target="_blank" rel="noopener">link</a>
+```
+
+Example:
+
+```
+...
+"field_value_to_set":"-----------<br>Here is the list of fields: <br><br>{[{request_issue_type_select}]}<br>{[{one_of_the_field_ids_to_get}]}{[{request_custom_fields_24156879|   <br><strong style='color:red;'>#FIELD_LABEL =></strong>  }]}{[{request_custom_fields_23506078| <br><strong style='color:red;'>FIELD_LABEL:</strong>    }]}<br> <i>HISTORY:</i> {[{request_custom_fields_23194496| <br>FIELD LABEL IN ALL UPPERCASE: }]}",
+...
+```
+
+
 3 - test
 
 ### notes:
@@ -293,6 +324,9 @@ var zdForm = function() {
 	   		for(var i = formSettings.field_ids_to_listen.length - 1; i >= 0; i--) {
 			    if(formSettings.field_ids_to_listen[i] == 'one_of_the_field_ids_to_get') formSettings.field_ids_to_listen.splice(i, 1);
 			}
+
+			// intended for request_description when it uses wysiwyg editor
+			formSettings.isRichEditor = jQuery('#'+formSettings.field_id_to_set).attr('data-helper') == 'wysiwyg';
 	   }
 	   function hideFields(formSettings) { // hide listed fields
 	   		var field_ids_to_hide = formSettings.field_ids_to_hide || [];
@@ -408,14 +442,18 @@ var zdForm = function() {
 	   function isEmpty(v){
 	   		return ( v == undefined || v == null || v == '' || v == '-' );
 	   }
-
 	   function setField(formSettings, optionalValue) { // set field
-	   		jQuery('#'+formSettings.field_id_to_set).val((optionalValue !== undefined) ? optionalValue : formSettings.processed_field_value_to_set);
+	   		if (formSettings.isRichEditor) { // used TinyMCE Rich editor API to set the content
+	   			tinyMCE.get(formSettings.field_id_to_set).setContent((optionalValue !== undefined) ? optionalValue : formSettings.processed_field_value_to_set)
+	   		} else {
+	   			jQuery('#'+formSettings.field_id_to_set).val((optionalValue !== undefined) ? optionalValue : formSettings.processed_field_value_to_set);
+	   		}
 	   }
 	   function listenSubmitEvent(formSettings) { // run logic on form submit event
 	   		// For some weird reasons jQuery('form#new_request').on('submit', function(e){ doesn't work
 	   		// for Anonymous visitors, but works for end-users
 	   		// Event listener will not be added when form submission has failed
+	   		// Issues with this approach were reported in the Guide Theme after version 2.5.0
 
 	   		if (!formSettings.is_callback || !formSettings.is_form_submitted) {
 	   			jQuery('#new_request').find('input[type="submit"]').on('click', function(e){
@@ -467,7 +505,7 @@ var zdForm = function() {
 	   		}
 		}
 	   function showError(msg) { // log messages to the console
-	      if (msg) console.warn('[' + new Date.now().toLocaleDateString() + '] TICKET FORM FIELDS PRESET SCRIPT ERROR: ' + msg);
+	      if (msg) console.warn('[' + new Date.now().toLocaleDateString() + '] TICKET FORM FIELDS PRESET SCRIPT (zdForm) ERROR: ' + msg);
 	   }
 
 	return mdl;
