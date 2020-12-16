@@ -6,7 +6,7 @@ ver 1.2.6 | last updated: 2020-12-16
 
 ```
 <!-- Get patch fixes within a minor version -->
-https://cdn.jsdelivr.net/gh/sarapulov/zdForm@1.2.0/zdForm.js
+https://cdn.jsdelivr.net/gh/sarapulov/zdForm@1.2.6/zdForm.js
 
 <!-- Always get the latest version -->
 <!-- Not recommended for production sites! -->
