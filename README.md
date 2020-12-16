@@ -1,6 +1,6 @@
 # zdForm
     
-ver 1.2.5 | last updated: 2020-11-25
+ver 1.2.6 | last updated: 2020-12-16
 
 ### How to get it
 
@@ -68,7 +68,10 @@ jQuery(document).ready(function () {
             // Array accept the following entries '/{ANY STRING TO MATCH}/' this will be used as a regular expression to test whether
             // given user tag match the patter. For example, using '/ams::/' as one of the entry will be evaluated as TRUE for the
             // following tags: ams::45, ams::123456, ams::, ams::test
-            "user_has_any_tag":['test', '/ams::/']
+            "user_has_any_tag":['test', '/ams::/'],
+
+            // OPTIONAL - if 'true' - the empty dropdown field will return an empty string. Otherwise, it will be a dash ('-')
+            "no_dash_for_empty_dropdown": true
             }
         
         });

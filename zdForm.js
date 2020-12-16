@@ -2,7 +2,7 @@
 
 # zdForm
     
-ver 1.2.5 | last updated: 2020-11-25
+ver 1.2.6 | last updated: 2020-12-16
 
 ### How to get it
 
@@ -70,7 +70,10 @@ jQuery(document).ready(function () {
             // Array accept the following entries '/{ANY STRING TO MATCH}/' this will be used as a regular expression to test whether
             // given user tag match the patter. For example, using '/ams::/' as one of the entry will be evaluated as TRUE for the
             // following tags: ams::45, ams::123456, ams::, ams::test
-            "user_has_any_tag":['test', '/ams::/']
+            "user_has_any_tag":['test', '/ams::/'],
+
+			// OPTIONAL - if 'true' - the empty dropdown field will return an empty string. Otherwise, it will be a dash ('-')
+            "no_dash_for_empty_dropdown": true
             }
         
         });
@@ -310,7 +313,7 @@ var zdForm = function() {
 	   				placeholder: placeholder,
 	   				field_id: field_id,
 	   				field_text: ( field_text.indexOf('FIELD_LABEL') > -1 ) ? field_text.replace('FIELD_LABEL', jQuery('label[for="' + field_id + '"]').text()) : field_text,
-	   				has_text: !!( (placeholderArray.length > 1) && (placeholderArray[1].trim().length > 1) )
+	   				has_text: !!( (placeholderArray.length > 1) && (placeholderArray[1].trim().length > 0) )
 	   			};
 	   		});
 
@@ -385,6 +388,7 @@ var zdForm = function() {
 	   		if ($field.is('[data-tagger]')) { // handle HC dropdowns
 	   			var json = JSON.parse($field.attr('data-tagger'));
 	   			val = flattenArray(json)[val];
+	   			if (formSettings.no_dash_for_empty_dropdown && (val == '-')) val = '';
 	   		}
 	   		if (field_id == 'request_issue_type_select') { // handle ticket form selector
 	   			val = $field.find('option[selected="selected"]').text();
