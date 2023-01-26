@@ -287,8 +287,8 @@ var zdForm = function() {
 	   	}
 	   	function executeSettings(formSettings) { // execute required logic
 	   		hideFields(formSettings);
-	   		setDefaultValue(formSettings);
 	   		extendFormSetting(formSettings);
+	   		setDefaultValue(formSettings);
 	   		cleanLocalStorage(formSettings);
 
 	   		if (formSettings.set_on_submit) listenSubmitEvent(formSettings); else addEventListener(formSettings);	   		
