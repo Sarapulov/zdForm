@@ -2,7 +2,7 @@
 
 # zdForm
     
-ver 1.2.6 | last updated: 2020-12-16
+ver 1.2.7 | last updated: 2023-01-26
 
 ### How to get it
 
